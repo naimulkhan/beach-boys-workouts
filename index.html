@@ -329,6 +329,54 @@
       letter-spacing: 0.3px;
     }
 
+    /* ─── Grim Reaper ─── */
+    #grim {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .grim-fig {
+      width: min(310px, 62vw);
+      opacity: 0;
+      filter: drop-shadow(0 0 50px rgba(255,30,0,0.9)) drop-shadow(0 0 100px rgba(0,0,0,1));
+    }
+    .grim-fig.active {
+      animation: grimAppear 0.95s ease forwards;
+    }
+    @keyframes grimAppear {
+      0%   { opacity:0; transform:scale(0.05) rotate(-30deg); filter:drop-shadow(0 0 0px #000) blur(14px); }
+      18%  { opacity:1; transform:scale(1.3) rotate(8deg);    filter:drop-shadow(0 0 50px rgba(255,30,0,0.95)) blur(0); }
+      38%  { opacity:1; transform:scale(0.88) rotate(-4deg); }
+      55%  { opacity:1; transform:scale(1.06) rotate(2deg); }
+      72%  { opacity:1; transform:scale(0.97) rotate(-1deg); }
+      83%  { opacity:1; transform:scale(1) rotate(0deg); }
+      100% { opacity:0; transform:scale(1.5) translateY(-20px) rotate(18deg); filter:blur(6px); }
+    }
+    /* Screen shake applied to body */
+    @keyframes screenShake {
+      0%,100% { transform:translateX(0) rotate(0); }
+      12%  { transform:translateX(-12px) rotate(-0.6deg); }
+      25%  { transform:translateX(12px)  rotate(0.6deg); }
+      37%  { transform:translateX(-8px); }
+      50%  { transform:translateX(8px); }
+      62%  { transform:translateX(-4px); }
+      75%  { transform:translateX(4px); }
+      87%  { transform:translateX(-2px); }
+    }
+    body.shake { animation: screenShake 0.55s ease; }
+    /* Gold highlight pulse when reel pauses on fake target */
+    .slot-highlight.pulse {
+      animation: hlPulse 0.28s ease-in-out 3;
+    }
+    @keyframes hlPulse {
+      0%,100% { border-color:rgba(255,214,0,0.7); }
+      50%     { border-color:rgba(255,90,40,1); box-shadow:0 0 18px rgba(255,90,40,0.55); }
+    }
+
     /* ─── Confetti ─── */
     #confetti {
       position: fixed;
@@ -380,6 +428,68 @@
 
 <div id="confetti"></div>
 <div id="flash"></div>
+
+<div id="grim">
+  <div class="grim-fig" id="grimFig">
+    <svg viewBox="0 0 240 340" xmlns="http://www.w3.org/2000/svg">
+      <!-- Shadow base -->
+      <ellipse cx="115" cy="332" rx="75" ry="12" fill="#000" opacity="0.35"/>
+      <!-- Main robe -->
+      <path d="M115,95 C78,95 52,155 42,218 L26,332 L204,332 L188,218 C178,155 152,95 115,95Z" fill="#111"/>
+      <!-- Robe highlights/folds -->
+      <path d="M115,95 L90,200 L80,332" stroke="#1e1e1e" stroke-width="6" fill="none"/>
+      <path d="M115,95 L140,200 L150,332" stroke="#1e1e1e" stroke-width="6" fill="none"/>
+      <!-- Hood -->
+      <path d="M72,90 Q115,22 158,90 Q172,116 160,142 Q115,162 70,142 Q58,116 72,90Z" fill="#1a1a1a"/>
+      <!-- Hood rim shadow -->
+      <path d="M72,90 Q115,22 158,90" stroke="#0a0a0a" stroke-width="5" fill="none"/>
+      <!-- Skull -->
+      <ellipse cx="115" cy="105" rx="32" ry="36" fill="#e8e3be"/>
+      <!-- Cheekbone shading -->
+      <ellipse cx="95" cy="120" rx="10" ry="8" fill="#d4ce9c" opacity="0.5"/>
+      <ellipse cx="135" cy="120" rx="10" ry="8" fill="#d4ce9c" opacity="0.5"/>
+      <!-- Eye sockets -->
+      <ellipse cx="101" cy="98"  rx="12" ry="14" fill="#1a1a1a"/>
+      <ellipse cx="129" cy="98"  rx="12" ry="14" fill="#1a1a1a"/>
+      <!-- Red glow fill -->
+      <ellipse cx="101" cy="98"  rx="7"  ry="8"  fill="#ff2200"/>
+      <ellipse cx="129" cy="98"  rx="7"  ry="8"  fill="#ff2200"/>
+      <!-- Bright inner eye -->
+      <ellipse cx="101" cy="97"  rx="3"  ry="3.5" fill="#ff8866"/>
+      <ellipse cx="129" cy="97"  rx="3"  ry="3.5" fill="#ff8866"/>
+      <!-- Eye halos -->
+      <ellipse cx="101" cy="98"  rx="16" ry="18" fill="#ff4400" opacity="0.18"/>
+      <ellipse cx="129" cy="98"  rx="16" ry="18" fill="#ff4400" opacity="0.18"/>
+      <!-- Nose cavity -->
+      <polygon points="111,117 119,117 115,128" fill="#b0a070"/>
+      <!-- Teeth backdrop -->
+      <rect x="97" y="130" width="36" height="16" rx="3" fill="#1a1a1a"/>
+      <!-- Teeth -->
+      <rect x="99"  y="130" width="5.5" height="15" rx="1.2" fill="#e8e3be"/>
+      <rect x="106" y="130" width="5.5" height="16" rx="1.2" fill="#e8e3be"/>
+      <rect x="113" y="130" width="5.5" height="16" rx="1.2" fill="#e8e3be"/>
+      <rect x="120" y="130" width="5.5" height="16" rx="1.2" fill="#e8e3be"/>
+      <rect x="127" y="130" width="5.5" height="15" rx="1.2" fill="#e8e3be"/>
+      <!-- Left skeletal arm -->
+      <line x1="62"  y1="190" x2="36"  y2="258" stroke="#e8e3be" stroke-width="6"   stroke-linecap="round"/>
+      <line x1="36"  y1="258" x2="22"  y2="290" stroke="#e8e3be" stroke-width="4.5" stroke-linecap="round"/>
+      <line x1="36"  y1="258" x2="30"  y2="294" stroke="#e8e3be" stroke-width="4"   stroke-linecap="round"/>
+      <line x1="36"  y1="258" x2="40"  y2="295" stroke="#e8e3be" stroke-width="4"   stroke-linecap="round"/>
+      <line x1="36"  y1="258" x2="52"  y2="291" stroke="#e8e3be" stroke-width="4"   stroke-linecap="round"/>
+      <circle cx="29"  cy="282" r="4" fill="#e8e3be"/>
+      <circle cx="37"  cy="281" r="4" fill="#e8e3be"/>
+      <circle cx="46"  cy="280" r="4" fill="#e8e3be"/>
+      <!-- Scythe staff -->
+      <line x1="158" y1="108" x2="232" y2="20" stroke="#6b2e0e" stroke-width="9" stroke-linecap="round"/>
+      <!-- Scythe blade -->
+      <path d="M226,14 Q264,-6 255,50 Q238,28 226,38" fill="#c0bfbc" stroke="#888" stroke-width="2.5"/>
+      <!-- Blade shine -->
+      <path d="M230,16 Q250,4 248,40" stroke="#eeeeee" stroke-width="2.5" fill="none" opacity="0.65"/>
+      <!-- Blade edge dark -->
+      <path d="M226,38 Q240,18 255,50" stroke="#666" stroke-width="1.5" fill="none"/>
+    </svg>
+  </div>
+</div>
 
 <div class="container">
   <header>
@@ -615,43 +725,77 @@
 
     const idx = Math.floor(Math.random() * N);
 
-    // Land on this workout in copy-5 (index = N*4 + idx)
-    const landAbsIdx = N * 4 + idx;
-    const landY = 35 - landAbsIdx * ITEM_H;
+    // fakeIdx: one slot BEFORE the real target — reel appears to stop here first
+    const fakeIdx    = (idx + N - 1) % N;
+    const fakeAbsIdx = N * 4 + fakeIdx;
+    const fakeY      = 35 - fakeAbsIdx * ITEM_H;
+    // Real target is always exactly one item further (guaranteed forward movement)
+    const landY      = fakeY - ITEM_H;
 
-    // Duration varies a bit each time for variety
-    const dur = 2400 + Math.random() * 600;
-
-    reel.style.transition = `transform ${dur}ms cubic-bezier(0.12, 0.82, 0.18, 1)`;
-    reel.style.transform  = `translateY(${landY}px)`;
+    // ── Phase 1: fast spin decelerating into the fake target ──
+    const phase1 = 2100 + Math.random() * 400;
+    reel.style.transition = `transform ${phase1}ms cubic-bezier(0.14, 0.76, 0.08, 1)`;
+    reel.style.transform  = `translateY(${fakeY}px)`;
 
     setTimeout(() => {
-      // Flash + confetti
-      flashEl.classList.add('pop');
-      setTimeout(() => flashEl.classList.remove('pop'), 120);
-      launchConfetti();
+      // Pulse gold lines to tease "it's locked in"
+      const hl = document.querySelector('.slot-highlight');
+      hl.classList.add('pulse');
+      setTimeout(() => hl.classList.remove('pulse'), 840);
 
-      // Show card
-      showCard(WORKOUTS[idx]);
-
-      // Update history
-      history.unshift(`${WORKOUTS[idx].emoji} ${WORKOUTS[idx].name}`);
-      if (history.length > 5) history.pop();
-      histEl.innerHTML = history.length > 1
-        ? '📋 Previous: ' + history.slice(1).join(' → ')
-        : '';
-
-      // Silent reset to copy-1 position (same workout, visually identical)
+      // ── Pause on fake target, then ONE sharp tick forward ──
+      const pauseMs = 440 + Math.random() * 160;
       setTimeout(() => {
-        reel.style.transition = 'none';
-        const resetY = 35 - (N + idx) * ITEM_H;
-        reel.style.transform = `translateY(${resetY}px)`;
-      }, 400);
+        reel.style.transition = 'transform 0.19s cubic-bezier(0.9, 0, 1, 0.55)';
+        reel.style.transform  = `translateY(${landY}px)`;
 
-      spinning = false;
-      btn.disabled = false;
-      btn.textContent = '🎲 Spin Again';
-    }, dur + 50);
+        setTimeout(() => {
+          // Bounce-settle: pull back slightly then spring to final position
+          reel.style.transition = 'none';
+          reel.style.transform  = `translateY(${landY - 7}px)`;
+          requestAnimationFrame(() => {
+            reel.style.transition = 'transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            reel.style.transform  = `translateY(${landY}px)`;
+          });
+
+          // ── Grim Reaper splash ──
+          setTimeout(() => {
+            showGrimReaper(() => {
+              flashEl.classList.add('pop');
+              setTimeout(() => flashEl.classList.remove('pop'), 120);
+              launchConfetti();
+              showCard(WORKOUTS[idx]);
+
+              history.unshift(`${WORKOUTS[idx].emoji} ${WORKOUTS[idx].name}`);
+              if (history.length > 5) history.pop();
+              histEl.innerHTML = history.length > 1
+                ? '📋 Previous: ' + history.slice(1).join(' → ')
+                : '';
+
+              setTimeout(() => {
+                reel.style.transition = 'none';
+                reel.style.transform  = `translateY(${35 - (N + idx) * ITEM_H}px)`;
+              }, 400);
+
+              spinning = false;
+              btn.disabled = false;
+              btn.textContent = '🎲 Spin Again';
+            });
+          }, 260);
+        }, 210);
+      }, pauseMs);
+    }, phase1 + 30);
+  }
+
+  function showGrimReaper(onDone) {
+    const fig = document.getElementById('grimFig');
+    document.body.classList.add('shake');
+    setTimeout(() => document.body.classList.remove('shake'), 550);
+    fig.classList.add('active');
+    setTimeout(() => {
+      fig.classList.remove('active');
+      if (onDone) onDone();
+    }, 950);
   }
 
   function showCard(w) {

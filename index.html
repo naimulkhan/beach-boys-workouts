@@ -821,68 +821,127 @@
     btn.textContent = '⏳ Spinning…';
     card.classList.remove('show');
 
-    const idx = Math.floor(Math.random() * N);
-
-    // fakeIdx: one slot BEFORE the real target — reel appears to stop here first
+    const idx        = Math.floor(Math.random() * N);
     const fakeIdx    = (idx + N - 1) % N;
     const fakeAbsIdx = N * 4 + fakeIdx;
     const fakeY      = 35 - fakeAbsIdx * ITEM_H;
-    // Real target is always exactly one item further (guaranteed forward movement)
-    const landY      = fakeY - ITEM_H;
+    const landY      = fakeY - ITEM_H; // one item ahead = real target
 
-    // ── Phase 1: fast spin decelerating into the fake target ──
+    // ── Phase 1: fast spin → heavy decelerate → land on fake ──
     const phase1 = 2100 + Math.random() * 400;
     reel.style.transition = `transform ${phase1}ms cubic-bezier(0.14, 0.76, 0.08, 1)`;
     reel.style.transform  = `translateY(${fakeY}px)`;
 
     setTimeout(() => {
-      // Pulse gold lines to tease "it's locked in"
       const hl = document.querySelector('.slot-highlight');
       hl.classList.add('pulse');
       setTimeout(() => hl.classList.remove('pulse'), 840);
 
-      // ── Pause on fake target, then ONE sharp tick forward ──
       const pauseMs = 440 + Math.random() * 160;
       setTimeout(() => {
-        reel.style.transition = 'transform 0.19s cubic-bezier(0.9, 0, 1, 0.55)';
-        reel.style.transform  = `translateY(${landY}px)`;
-
-        setTimeout(() => {
-          // Bounce-settle: pull back slightly then spring to final position
-          reel.style.transition = 'none';
-          reel.style.transform  = `translateY(${landY - 7}px)`;
-          requestAnimationFrame(() => {
-            reel.style.transition = 'transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            reel.style.transform  = `translateY(${landY}px)`;
-          });
-
-          // ── Grim Reaper splash ──
-          setTimeout(() => {
-            showGrimReaper(() => {
-              flashEl.classList.add('pop');
-              setTimeout(() => flashEl.classList.remove('pop'), 120);
-              launchConfetti();
-              showCard(WORKOUTS[idx]);
-
-              history.unshift(`${WORKOUTS[idx].emoji} ${WORKOUTS[idx].name}`);
-              if (history.length > 5) history.pop();
-              histEl.innerHTML = history.length > 1
-                ? '📋 Previous: ' + history.slice(1).join(' → ')
-                : '';
-
-              setTimeout(() => {
-                reel.style.transition = 'none';
-                reel.style.transform  = `translateY(${35 - (N + idx) * ITEM_H}px)`;
-              }, 400);
-
-              spinning = false;
-              btn.disabled = false;
-              btn.textContent = '🎲 Spin Again';
-            });
-          }, 260);
-        }, 210);
+        const finales = ['burst', 'reverse', 'wobble', 'scramble'];
+        runFinale(finales[Math.floor(Math.random() * finales.length)]);
       }, pauseMs);
     }, phase1 + 30);
+
+    // Bounce-settle onto landY, then call cb after afterMs
+    function settle(afterMs, cb) {
+      reel.style.transition = 'none';
+      reel.style.transform  = `translateY(${landY - 6}px)`;
+      requestAnimationFrame(() => {
+        reel.style.transition = 'transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        reel.style.transform  = `translateY(${landY}px)`;
+      });
+      setTimeout(cb, afterMs);
+    }
+
+    function reveal() {
+      setTimeout(() => {
+        showGrimReaper(() => {
+          flashEl.classList.add('pop');
+          setTimeout(() => flashEl.classList.remove('pop'), 120);
+          launchConfetti();
+          showCard(WORKOUTS[idx]);
+
+          history.unshift(`${WORKOUTS[idx].emoji} ${WORKOUTS[idx].name}`);
+          if (history.length > 5) history.pop();
+          histEl.innerHTML = history.length > 1
+            ? '📋 Previous: ' + history.slice(1).join(' → ')
+            : '';
+
+          setTimeout(() => {
+            reel.style.transition = 'none';
+            reel.style.transform  = `translateY(${35 - (N + idx) * ITEM_H}px)`;
+          }, 400);
+
+          spinning = false;
+          btn.disabled = false;
+          btn.textContent = '🎲 Spin Again';
+        });
+      }, 260);
+    }
+
+    function runFinale(type) {
+      switch (type) {
+
+        case 'burst': {
+          // Rockets 4 items past the target, then elastic-springs back to land on it
+          reel.style.transition = 'transform 0.16s cubic-bezier(0.9, 0.1, 1, 0.5)';
+          reel.style.transform  = `translateY(${fakeY - ITEM_H * 4}px)`;
+          setTimeout(() => {
+            reel.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            reel.style.transform  = `translateY(${landY}px)`;
+            setTimeout(reveal, 640);
+          }, 180);
+          break;
+        }
+
+        case 'reverse': {
+          // Ticks backward one item, then shoots forward to the real target
+          reel.style.transition = 'transform 0.14s ease-out';
+          reel.style.transform  = `translateY(${fakeY + ITEM_H}px)`;
+          setTimeout(() => {
+            reel.style.transition = 'transform 0.26s cubic-bezier(0.85, 0, 1, 0.55)';
+            reel.style.transform  = `translateY(${landY}px)`;
+            setTimeout(() => settle(340, reveal), 280);
+          }, 190);
+          break;
+        }
+
+        case 'wobble': {
+          // Oscillates fake → real → fake → real before settling
+          const steps = [landY, fakeY, landY];
+          let i = 0;
+          function wobbleStep() {
+            reel.style.transition = 'transform 0.12s ease-in-out';
+            reel.style.transform  = `translateY(${steps[i]}px)`;
+            i++;
+            if (i < steps.length) setTimeout(wobbleStep, 145);
+            else setTimeout(() => settle(360, reveal), 145);
+          }
+          wobbleStep();
+          break;
+        }
+
+        case 'scramble': {
+          // Center slot text spins through random workouts, then snaps to real target
+          const centerEl = reel.children[fakeAbsIdx];
+          let count = 0;
+          const total = 16;
+          const iv = setInterval(() => {
+            const r = WORKOUTS[Math.floor(Math.random() * N)];
+            centerEl.innerHTML = `<span class="ei">${r.emoji}</span>${r.name}`;
+            if (++count >= total) {
+              clearInterval(iv);
+              const wf = WORKOUTS[fakeIdx];
+              centerEl.innerHTML = `<span class="ei">${wf.emoji}</span>${wf.name}`;
+              settle(360, reveal);
+            }
+          }, 45);
+          break;
+        }
+      }
+    }
   }
 
   function showGrimReaper(onDone) {

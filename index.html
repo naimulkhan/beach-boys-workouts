@@ -329,6 +329,159 @@
       letter-spacing: 0.3px;
     }
 
+    /* ─── All Workouts Button ─── */
+    .all-btn {
+      position: fixed;
+      bottom: 155px;
+      right: 18px;
+      font-family: 'Nunito', sans-serif;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.45);
+      padding: 10px 18px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      z-index: 50;
+      letter-spacing: 0.5px;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+    .all-btn:hover {
+      background: rgba(255,255,255,0.32);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    /* ─── All Workouts Panel ─── */
+    .all-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,10,0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 400;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .all-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .all-panel {
+      background: #fff;
+      border-radius: 24px;
+      width: min(740px, 100%);
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.5);
+      transform: translateY(28px) scale(0.96);
+      transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .all-overlay.open .all-panel {
+      transform: translateY(0) scale(1);
+    }
+    .all-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      border-bottom: 1.5px solid #eef0f5;
+      flex-shrink: 0;
+    }
+    .all-panel-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #1a1a2e;
+    }
+    .all-count {
+      font-size: 0.78rem;
+      color: #aaa;
+      font-weight: 700;
+      margin-left: 7px;
+    }
+    .all-close {
+      background: #f2f2f2;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      font-family: sans-serif;
+      flex-shrink: 0;
+    }
+    .all-close:hover { background: #e4e4e4; }
+    .all-grid {
+      overflow-y: auto;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 11px;
+    }
+    .all-card {
+      background: #f6f9ff;
+      border: 1.5px solid #dde8f8;
+      border-radius: 16px;
+      padding: 14px 15px;
+      cursor: pointer;
+      transition: transform 0.14s, box-shadow 0.14s, border-color 0.14s, background 0.14s;
+      user-select: none;
+    }
+    .all-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 22px rgba(46,134,193,0.18);
+      border-color: #90bef5;
+      background: #eef4ff;
+    }
+    .all-card:active { transform: translateY(-1px); }
+    .all-card-emoji { font-size: 1.7rem; margin-bottom: 7px; line-height: 1; }
+    .all-card-name {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: #1a1a2e;
+      margin-bottom: 5px;
+      line-height: 1.25;
+    }
+    .all-card-tag {
+      display: inline-block;
+      font-size: 0.67rem;
+      font-weight: 700;
+      color: #1565c0;
+      background: #ddeeff;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 9px;
+      letter-spacing: 0.2px;
+    }
+    .all-card-stats {
+      font-size: 0.73rem;
+      color: #666;
+      line-height: 1.6;
+    }
+    .all-hint {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #bbb;
+      padding: 8px 20px 18px;
+      flex-shrink: 0;
+    }
+
     /* ─── Grim Reaper ─── */
     #grim {
       position: fixed;
@@ -509,6 +662,19 @@
   <div class="workout-card" id="workoutCard"></div>
 
   <div class="history" id="history"></div>
+</div>
+
+<button class="all-btn" id="allBtn">📋 All Workouts</button>
+
+<div class="all-overlay" id="allOverlay">
+  <div class="all-panel">
+    <div class="all-panel-header">
+      <span class="all-panel-title">📋 All Workouts <span class="all-count" id="allCount"></span></span>
+      <button class="all-close" id="allClose">✕</button>
+    </div>
+    <div class="all-grid" id="allGrid"></div>
+    <div class="all-hint">Tap any workout to view it directly</div>
+  </div>
 </div>
 
 <script>
@@ -1016,6 +1182,44 @@
   buildReel();
   setTimeout(spawnGull, 1500);
   setInterval(spawnGull, 6000);
+
+  // ── All Workouts Panel ──
+  const allOverlay = document.getElementById('allOverlay');
+  const allGrid    = document.getElementById('allGrid');
+
+  function openAllPanel() {
+    document.getElementById('allCount').textContent = `(${WORKOUTS.length})`;
+    allGrid.innerHTML = WORKOUTS.map((w, i) => `
+      <div class="all-card" data-idx="${i}">
+        <div class="all-card-emoji">${w.emoji}</div>
+        <div class="all-card-name">${w.name}</div>
+        <div class="all-card-tag">${w.tag}</div>
+        <div class="all-card-stats">📏 ${w.quality}<br>⏱️ ${w.duration}<br>💬 ${w.vibe}</div>
+      </div>
+    `).join('');
+    allGrid.querySelectorAll('.all-card').forEach(card => {
+      card.addEventListener('click', () => {
+        closeAllPanel();
+        const w = WORKOUTS[+card.dataset.idx];
+        showCard(w);
+        setTimeout(() => {
+          document.getElementById('workoutCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 120);
+      });
+    });
+    allOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAllPanel() {
+    allOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('allBtn').addEventListener('click', openAllPanel);
+  document.getElementById('allClose').addEventListener('click', closeAllPanel);
+  allOverlay.addEventListener('click', e => { if (e.target === allOverlay) closeAllPanel(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPanel(); });
 </script>
 </body>
 </html>
